@@ -1,41 +1,32 @@
 package snowflake.parsing.expression;
 
 import snowflake.Visitor;
-import snowflake.lexical.type.TokenType;
+import snowflake.block.Block;
+import snowflake.block.ObjectBlock;
+import snowflake.parsing.Expression;
 
 public class ObjectExpression extends Expression {
 
     private int line;
 
-    private Expression left, right;
-    private TokenType operator;
+    private String name;
 
-    public ObjectExpression(int line, Expression left, Expression right, TokenType operator) {
+    public ObjectExpression(int line, String name) {
         this.line = line;
 
-        this.left = left;
-        this.right = right;
-        this.operator = operator;
+        this.name = name;
     }
 
     public int getLine() {
         return line;
     }
 
-    public Expression getLeft() {
-        return left;
-    }
-
-    public Expression getRight() {
-        return right;
-    }
-
-    public TokenType getOperator() {
-        return operator;
+    public String getName() {
+        return name;
     }
 
     @Override
-    void accept(Visitor visitor) {
-
+    public Block accept(Visitor visitor) {
+        return new ObjectBlock(name);
     }
 }

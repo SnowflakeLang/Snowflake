@@ -1,13 +1,13 @@
 package snowflake.parsing;
 
+import snowflake.exception.SnowflakeException;
 import snowflake.lexical.TokenStream;
-import snowflake.parsing.expression.Expression;
 
-abstract class SnowflakeParser<T extends Expression> {
+public abstract class SnowflakeParser<T extends Expression> {
 
-    abstract boolean shouldEvaluate(TokenStream stream);
+    public abstract boolean shouldEvaluate(TokenStream stream) throws SnowflakeException;
 
-    abstract T evaluate(TokenStream stream);
+    public abstract T evaluate(TokenStream stream);
 
     //Here we will add all of our parsers!
 

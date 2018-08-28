@@ -23,8 +23,6 @@ public class Lexer {
     }
 
     public TokenStream getStream(String str, int line) throws SnowflakeException {
-        line++;
-
         TokenStream stream = new TokenStream(line);
 
         while (!str.isEmpty()) {

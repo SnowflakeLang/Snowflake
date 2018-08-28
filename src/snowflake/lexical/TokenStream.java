@@ -14,7 +14,7 @@ public class TokenStream {
     private int line;
     private int position;
 
-    public TokenStream(int line) {
+    TokenStream(int line) {
         this.tokens = new ArrayList<>();
         this.line = line;
 
@@ -29,6 +29,10 @@ public class TokenStream {
         return current;
     }
 
+    public int getLine() {
+        return line;
+    }
+
     public int getPosition() {
         return position;
     }
@@ -37,9 +41,9 @@ public class TokenStream {
         tokens.add(token);
     }
 
-    public Token read() throws SnowflakeException {
+    public Token read() {
         if (position == tokens.size()) {
-            throw new SnowflakeStreamException("Line " + line + ": Couldn't read next Token in stream!");
+            reset();
         }
 
         Token token = tokens.get(position);
@@ -48,7 +52,7 @@ public class TokenStream {
         return token;
     }
 
-    public void skip() {
+    private void skip() {
         position++;
     }
 
@@ -58,14 +62,8 @@ public class TokenStream {
         }
     }
 
-    public void recall() {
-        position--;
-    }
-
-    public void recall(int offset) {
-        for (int i = 1; i <= offset; i++) {
-            recall();
-        }
+    private void reset() {
+        position = 0;
     }
 
     public Token peek() {
@@ -76,4 +74,7 @@ public class TokenStream {
         return tokens.get(index).equals(token);
     }
 
+    public int size() {
+        return tokens.size();
+    }
 }

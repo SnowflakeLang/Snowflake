@@ -1,9 +1,12 @@
 package snowflake;
 
-import snowflake.parsing.expression.Expression;
+import snowflake.block.Block;
+import snowflake.parsing.Expression;
 
-public interface Visitor {
+public class Visitor {
 
-    void visit(Expression expression);
+    public Block visit(Expression expression) {
+        return expression.accept(this);
+    }
 
 }
