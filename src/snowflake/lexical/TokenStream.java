@@ -4,6 +4,7 @@ import snowflake.exception.SnowflakeException;
 import snowflake.exception.SnowflakeStreamException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TokenStream {
@@ -16,6 +17,13 @@ public class TokenStream {
 
     TokenStream(int line) {
         this.tokens = new ArrayList<>();
+        this.line = line;
+
+        position = 0;
+    }
+
+    public TokenStream(int line, Token... tokens) {
+        this.tokens = new ArrayList<>(Arrays.asList(tokens));
         this.line = line;
 
         position = 0;
@@ -50,6 +58,14 @@ public class TokenStream {
         position++;
 
         return token;
+    }
+
+    public Token read(int position) throws SnowflakeException {
+        if (position >= tokens.size()) {
+            throw new SnowflakeStreamException("Line " + line + ": Couldn't read Token on index " + position + "!");
+        }
+
+        return tokens.get(position);
     }
 
     private void skip() {

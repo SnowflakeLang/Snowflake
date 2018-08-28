@@ -1,5 +1,6 @@
 package snowflake.parsing.parser;
 
+import snowflake.block.Block;
 import snowflake.exception.SnowflakeException;
 import snowflake.lexical.Token;
 import snowflake.lexical.TokenStream;
@@ -8,28 +9,28 @@ import snowflake.lexical.type.TokenType;
 import snowflake.parsing.SnowflakeParser;
 import snowflake.parsing.Expression;
 import snowflake.parsing.expression.ObjectExpression;
+import snowflake.utils.StreamUtils;
 
 public class ObjectParser extends SnowflakeParser {
 
     @Override
     public boolean shouldEvaluate(TokenStream stream) {
-        Token classToken = stream.read();
-        Token identifierToken = stream.read();
-        Token openBraceToken = stream.read();
+        try {
+            int line = stream.getLine();
 
-        if (classToken.getTokenType() == DataType.IDENTIFIER) {
-            if (identifierToken.getTokenType() == DataType.IDENTIFIER) {
-                if (openBraceToken.getTokenType() == TokenType.OBRACE) {
-                    return true;
-                }
-            }
+            return StreamUtils.compares(stream, new TokenStream(line,
+                    new Token(DataType.IDENTIFIER, "class", line),
+                    new Token(DataType.IDENTIFIER, stream.read(1).getValue(), line),
+                    new Token(TokenType.OBRACE, "{", line)));
+        } catch (SnowflakeException ex) {
+            System.out.println(ex.getMessage());
         }
 
         return false;
     }
 
     @Override
-    public Expression evaluate(TokenStream stream) {
+    public Expression evaluate(Block superBlock, TokenStream stream) {
         Token classToken = stream.read();
         Token identifierToken = stream.read();
 

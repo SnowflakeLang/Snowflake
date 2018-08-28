@@ -25,6 +25,16 @@ public class Lexer {
     public TokenStream getStream(String str, int line) throws SnowflakeException {
         TokenStream stream = new TokenStream(line);
 
+        return constructStream(stream, str);
+    }
+
+    public TokenStream getStreamComparison(String str) throws SnowflakeException {
+        TokenStream stream = new TokenStream(line);
+
+        return constructStream(stream, str);
+    }
+
+    private TokenStream constructStream(TokenStream stream, String str) throws SnowflakeLexerException {
         while (!str.isEmpty()) {
             HashMap<Token, String> values = evaluate(str, line);
 

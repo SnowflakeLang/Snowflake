@@ -1,5 +1,7 @@
 package snowflake.block;
 
+import snowflake.exception.SnowflakeException;
+
 import java.util.ArrayList;
 
 public class ObjectBlock extends Block {
@@ -9,7 +11,9 @@ public class ObjectBlock extends Block {
 
     public ObjectBlock(String name) {
         super(null);
+
         this.name = name;
+        this.subBlocks = new ArrayList<>();
     }
 
     public String getName() {
@@ -18,7 +22,7 @@ public class ObjectBlock extends Block {
 
     @Override
     public Block getSuperBlock() {
-        return super.getSuperBlock();
+        return null;
     }
 
     public ArrayList<Block> getSubBlocks() {
@@ -31,6 +35,14 @@ public class ObjectBlock extends Block {
 
     @Override
     public void run() {
+        System.out.println("Object class -> " + name);
 
+        for (Block block : subBlocks) {
+            try {
+                block.run();
+            } catch (SnowflakeException ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
     }
 }

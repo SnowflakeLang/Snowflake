@@ -2,9 +2,6 @@ package snowflake.lexical.type;
 
 public enum KeywordType implements AbstractType {
 
-    VOID("void"),
-    INT("Integer"),
-    STRING("String"),
     IF("if"),
     ELSE("else"),
     ELSEIF("elseif"),
