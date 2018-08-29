@@ -25,6 +25,8 @@ public class VarDeclarationParser extends SnowflakeParser<VarDeclarationExpressi
                 throw new SnowflakeParserException("Line " + line + ": Can't assign \"Void\" to variable!");
             }
 
+            //TODO: Debug this!
+
             if (StreamUtils.compares(stream, new TokenStream(line,
                     new Token(DataType.IDENTIFIER, "Integer", line),
                     new Token(DataType.IDENTIFIER, stream.read(1).getValue(), line),
@@ -53,6 +55,8 @@ public class VarDeclarationParser extends SnowflakeParser<VarDeclarationExpressi
             throw new SnowflakeParserException("Line " + stream.getLine() + ": Can't assign \"Void\" to variable!");
         }
 
-        return new VarDeclarationExpression(stream.getLine(), type, identifierToken.getValue());
+        stream.skip(1); //Skip "="
+
+        return new VarDeclarationExpression(stream.getLine(), superBlock, type, identifierToken.getValue());
     }
 }

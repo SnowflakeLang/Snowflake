@@ -35,7 +35,7 @@ public class ObjectBlock extends Block {
 
     @Override
     public void run() {
-        System.out.println("Object class -> " + name);
+        System.out.println("Object -> " + name);
 
         for (Block block : subBlocks) {
             try {

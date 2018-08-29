@@ -7,11 +7,16 @@ import snowflake.exception.SnowflakeRuntimeException;
 import snowflake.lexical.Lexer;
 import snowflake.lexical.TokenStream;
 import snowflake.parsing.expression.FunctionExpression;
+import snowflake.parsing.expression.NullExpression;
+import snowflake.parsing.expression.VarDeclarationExpression;
 import snowflake.parsing.parser.FunctionParser;
+import snowflake.parsing.parser.NullParser;
 import snowflake.parsing.parser.ObjectParser;
 import snowflake.parsing.SnowflakeParser;
 import snowflake.parsing.Expression;
 import snowflake.parsing.expression.ObjectExpression;
+import snowflake.parsing.parser.VarDeclarationParser;
+import snowflake.utils.StreamUtils;
 
 public class Runtime {
 
@@ -20,7 +25,8 @@ public class Runtime {
 
         try {
             Lexer lexer = new Lexer();
-            String code = "class Hello {";
+            String code = "class Hello {" + "\n" +
+                    "Integer lol = 5" + "\n";
             Visitor visitor = new Visitor();
             ObjectBlock superBlock = null;
 
@@ -28,6 +34,8 @@ public class Runtime {
             SnowflakeParser<?>[] parsers = new SnowflakeParser[]{
                     new ObjectParser(),
                     new FunctionParser(),
+                    new VarDeclarationParser(),
+                    new NullParser()
             };
 
             int line = 1;
@@ -41,20 +49,48 @@ public class Runtime {
                 for (SnowflakeParser parser : parsers) {
                     if (parser.shouldEvaluate(stream)) {
                         Expression expression = parser.evaluate(superBlock, stream);
-                        Block block = visitor.visit(expression);
 
                         if (expression instanceof ObjectExpression) {
-                            superBlock = (ObjectBlock) block;
-                            current = block;
+                            Block oBlock = visitor.visit(expression);
+
+                            superBlock = (ObjectBlock) oBlock;
+                            current = oBlock;
                         }
 
                         if (expression instanceof FunctionExpression) {
                             if (superBlock != null) {
-                                superBlock.add(block);
-                                current = block;
+                                Block fBlock = visitor.visit(expression);
+
+                                superBlock.add(fBlock);
+                                current = fBlock;
                             } else {
-                                throw new SnowflakeRuntimeException("Line " + line + ": Function call without Object!");
+                                throw new SnowflakeRuntimeException("Line " + line + ": Function call outside of Object!");
                             }
+                        }
+
+                        if (expression instanceof VarDeclarationExpression) {
+                            if (superBlock != null) {
+                                TokenStream subStream = StreamUtils.getStream(stream, 4);
+
+                                for (SnowflakeParser subParser : parsers) {
+                                    if (subParser.shouldEvaluate(subStream)) {
+                                        Expression sExpr = subParser.evaluate(superBlock, subStream);
+
+                                        if (sExpr instanceof NullExpression) {
+                                            ((VarDeclarationExpression) expression).setValue(null);
+                                        }
+                                    }
+                                }
+
+                                Block vBlock = visitor.visit(expression);
+
+                                superBlock.add(vBlock);
+
+                                //No need to add current because Variable Blocks are Read-Only
+                            } else {
+                                throw new SnowflakeRuntimeException("Line " + line + ": Variable declaration outside of Object!");
+                            }
+
                         }
                     }
                 }

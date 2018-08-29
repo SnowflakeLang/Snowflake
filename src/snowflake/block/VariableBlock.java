@@ -1,19 +1,22 @@
 package snowflake.block;
 
 import snowflake.utils.TypeUtils;
+import snowflake.utils.Value;
 
 public class VariableBlock extends ReadableBlock {
 
     private Block superBlock;
     private TypeUtils.ObjectType type;
     private String name;
+    private Value value;
 
-    public VariableBlock(Block superBlock, TypeUtils.ObjectType type, String name) {
+    public VariableBlock(Block superBlock, TypeUtils.ObjectType type, String name, Value value) {
         super(superBlock);
 
         this.superBlock = superBlock;
         this.type = type;
         this.name = name;
+        this.value = value;
     }
 
     @Override
@@ -29,6 +32,12 @@ public class VariableBlock extends ReadableBlock {
         return name;
     }
 
+    public Value getValue() {
+        return value;
+    }
+
     @Override
-    public void run() { }
+    public void run() {
+        System.out.println("Variable -> " + name + ", returns " + type.getValue() + " with value " + value.toString());
+    }
 }

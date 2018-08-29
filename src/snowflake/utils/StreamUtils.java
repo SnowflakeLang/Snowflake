@@ -1,7 +1,10 @@
 package snowflake.utils;
 
+import snowflake.exception.SnowflakeException;
 import snowflake.lexical.Token;
 import snowflake.lexical.TokenStream;
+
+import java.util.ArrayList;
 
 public class StreamUtils {
 
@@ -22,6 +25,31 @@ public class StreamUtils {
         }
 
         return isSame;
+    }
+
+    public static TokenStream getStream(TokenStream stream, int offset) {
+        TokenStream returnStream = new TokenStream(stream.getLine());
+        ArrayList<Token> tokens = new ArrayList<>(stream.getTokens().subList(offset, stream.size() - 1));
+
+        for (Token token : tokens) {
+            returnStream.write(token);
+        }
+
+        return returnStream;
+    }
+
+    public static boolean hasNextStream(TokenStream stream) {
+        return stream.read() != null;
+    }
+
+    public static boolean hasNextStream(TokenStream stream, int offset) {
+        try {
+            return stream.read(offset) != null;
+        } catch (SnowflakeException ex) {
+            ex.printStackTrace();
+        }
+
+        return false;
     }
 
 }

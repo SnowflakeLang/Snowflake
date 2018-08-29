@@ -2,6 +2,7 @@ package snowflake.parsing.expression;
 
 import snowflake.Visitor;
 import snowflake.block.Block;
+import snowflake.block.VariableBlock;
 import snowflake.parsing.Expression;
 import snowflake.utils.TypeUtils;
 import snowflake.utils.Value;
@@ -10,19 +11,25 @@ public class VarDeclarationExpression extends Expression {
 
     private int line;
 
+    private Block superBlock;
     private TypeUtils.ObjectType returnType;
     private String name;
     private Value value;
 
-    public VarDeclarationExpression(int line, TypeUtils.ObjectType returnType, String name) {
+    public VarDeclarationExpression(int line, Block superBlock, TypeUtils.ObjectType returnType, String name) {
         this.line = line;
 
+        this.superBlock = superBlock;
         this.returnType = returnType;
         this.name = name;
     }
 
     public int getLine() {
         return line;
+    }
+
+    public Block getSuperBlock() {
+        return superBlock;
     }
 
     public TypeUtils.ObjectType getReturnType() {
@@ -43,6 +50,6 @@ public class VarDeclarationExpression extends Expression {
 
     @Override
     public Block accept(Visitor visitor) {
-        return null;
+        return new VariableBlock(superBlock, returnType, name, value);
     }
 }
