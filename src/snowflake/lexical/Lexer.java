@@ -6,6 +6,7 @@ import snowflake.lexical.type.DataType;
 import snowflake.lexical.type.KeywordType;
 import snowflake.lexical.type.TokenType;
 
+import javax.sound.midi.SoundbankResource;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,6 +58,18 @@ public class Lexer {
 
         HashMap<Token, String> values = new HashMap<>();
 
+        for (KeywordType keywordType : KeywordType.values()) {
+            if (str.startsWith(keywordType.getPattern())) {
+                if (str.substring(keywordType.getPattern().length()).isEmpty()) {
+                    values.put(new Token(keywordType, str.substring(0, keywordType.getPattern().length() + 1), line), "");
+                } else {
+                    values.put(new Token(keywordType, str.substring(0, keywordType.getPattern().length() + 1), line), str.substring(keywordType.getPattern().length()));
+                }
+
+                return values;
+            }
+        }
+
         for (Pattern pattern : patterns.keySet()) {
             Matcher matcher = pattern.matcher(str);
 
@@ -75,18 +88,6 @@ public class Lexer {
                     values.put(new Token(tokenType, str.substring(0, 1), line), "");
                 } else {
                     values.put(new Token(tokenType, str.substring(0, 1), line), str.substring(1));
-                }
-
-                return values;
-            }
-        }
-
-        for (KeywordType keywordType : KeywordType.values()) {
-            if (str.startsWith(keywordType.getPattern())) {
-                if (str.substring(keywordType.getPattern().length() - 1).isEmpty()) {
-                    values.put(new Token(keywordType, str.substring(0, keywordType.getPattern().length() - 1), line), "");
-                } else {
-                    values.put(new Token(keywordType, str.substring(0, keywordType.getPattern().length() - 1), line), str.substring(keywordType.getPattern().length() - 1));
                 }
 
                 return values;

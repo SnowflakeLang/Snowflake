@@ -3,7 +3,6 @@ package snowflake;
 import snowflake.block.Block;
 import snowflake.block.ObjectBlock;
 import snowflake.exception.SnowflakeException;
-import snowflake.exception.SnowflakeParserException;
 import snowflake.exception.SnowflakeRuntimeException;
 import snowflake.lexical.Lexer;
 import snowflake.lexical.TokenStream;
@@ -21,15 +20,14 @@ public class Runtime {
 
         try {
             Lexer lexer = new Lexer();
-            String code = "class Hello {" + "\n" +
-                    "   Integer main () {" + "\n";
+            String code = "class Hello {";
             Visitor visitor = new Visitor();
             ObjectBlock superBlock = null;
 
             Block current = null;
             SnowflakeParser<?>[] parsers = new SnowflakeParser[]{
                     new ObjectParser(),
-                    new FunctionParser()
+                    new FunctionParser(),
             };
 
             int line = 1;
@@ -37,20 +35,17 @@ public class Runtime {
             for (String str : code.split("\n")) {
                 TokenStream stream = lexer.getStream(str, line);
 
+                //TODO: Fix this so that the parser looks for a PART of the stream and not the whole stream
+                //TODO: This would be necessary for Variable Declaration (Use a UnassignedVarDeclaration first than use
+                //TODO: Equals to see if it is assigned using another expression (ValueExpression)
                 for (SnowflakeParser parser : parsers) {
                     if (parser.shouldEvaluate(stream)) {
                         Expression expression = parser.evaluate(superBlock, stream);
                         Block block = visitor.visit(expression);
 
                         if (expression instanceof ObjectExpression) {
-                            if (superBlock != null) {
-                                throw new SnowflakeParserException("Line " + line + ": Can't create two Objects in one file!");
-                            } else if (!(block instanceof ObjectBlock)) {
-                                throw new SnowflakeParserException("Line " + line + ": Couldn't assign block to \"" + str + "\"!");
-                            } else {
-                                superBlock = (ObjectBlock) block;
-                                current = block;
-                            }
+                            superBlock = (ObjectBlock) block;
+                            current = block;
                         }
 
                         if (expression instanceof FunctionExpression) {

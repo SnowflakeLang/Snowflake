@@ -39,7 +39,7 @@ public abstract class Block {
         return subBlocks;
     }
 
-    public <T extends Block> void add(T subBlock) {
+    public <T extends Block> void add(T subBlock) throws SnowflakeException {
         subBlocks.add(subBlock);
     }
 

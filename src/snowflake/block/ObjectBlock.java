@@ -41,7 +41,7 @@ public class ObjectBlock extends Block {
             try {
                 block.run();
             } catch (SnowflakeException ex) {
-                System.out.println(ex.getMessage());
+                ex.printStackTrace();
             }
         }
     }

@@ -73,7 +73,7 @@ public class TokenStream {
     }
 
     public void skip(int offset) {
-        for (int i = 1; i <= offset; i++) {
+        for (int i = 0; i < offset; i++) {
             skip();
         }
     }
@@ -86,8 +86,23 @@ public class TokenStream {
         return tokens.get(tokens.size() - 1);
     }
 
-    public boolean match(Token token, int index) {
-        return tokens.get(index).equals(token);
+    public boolean matches(int beginIndex, int endIndex, TokenStream stream) {
+        boolean isSame = true;
+
+        for (int index = 0; index < (endIndex - beginIndex); index++) {
+            Token thisToken = tokens.get(index);
+            Token otherToken = stream.getTokens().get(index);
+
+            if (thisToken.getTokenType() != otherToken.getTokenType()) {
+                isSame = false;
+            }
+
+            if (!thisToken.getValue().equals(otherToken.getValue())) {
+                isSame = false;
+            }
+        }
+
+        return isSame;
     }
 
     public int size() {

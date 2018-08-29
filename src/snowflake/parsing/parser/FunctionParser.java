@@ -27,7 +27,7 @@ public class FunctionParser extends SnowflakeParser<FunctionExpression> {
                     new Token(TokenType.CPAREN, ")", line),
                     new Token(TokenType.OBRACE, "{", line)));
         } catch (SnowflakeException ex) {
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
         }
 
         return false;
