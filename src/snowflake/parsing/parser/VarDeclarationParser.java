@@ -6,6 +6,7 @@ import snowflake.exception.SnowflakeParserException;
 import snowflake.lexical.Token;
 import snowflake.lexical.TokenStream;
 import snowflake.lexical.type.DataType;
+import snowflake.lexical.type.KeywordType;
 import snowflake.lexical.type.TokenType;
 import snowflake.parsing.SnowflakeParser;
 import snowflake.parsing.expression.VarDeclarationExpression;
@@ -21,19 +22,21 @@ public class VarDeclarationParser extends SnowflakeParser<VarDeclarationExpressi
 
             Token typeToken = stream.read(0);
 
-            if (typeToken.getValue().equals("Void")) {
+            if (typeToken.getValue().equals(KeywordType.VOID.getPattern())) {
                 throw new SnowflakeParserException("Line " + line + ": Can't assign \"Void\" to variable!");
             }
 
-            //TODO: Debug this!
+            stream.reset();
 
-            if (StreamUtils.compares(stream, new TokenStream(line,
-                    new Token(DataType.IDENTIFIER, "Integer", line),
+            if (stream.matches(0, 2, new TokenStream(line,
+                    new Token(KeywordType.INTEGER, "Integer", line),
                     new Token(DataType.IDENTIFIER, stream.read(1).getValue(), line),
                     new Token(TokenType.EQUAL, stream.read(2).getValue(), line)))) {
+                System.out.println("Found integer!");
+
                 return true;
-            } else if (StreamUtils.compares(stream, new TokenStream(line,
-                    new Token(DataType.IDENTIFIER, "String", line),
+            } else if (stream.matches(0, 2, new TokenStream(line,
+                    new Token(KeywordType.STRING, "String", line),
                     new Token(DataType.IDENTIFIER, stream.read(1).getValue(), line),
                     new Token(TokenType.EQUAL, stream.read(2).getValue(), line)))) {
                 return true;
@@ -56,6 +59,8 @@ public class VarDeclarationParser extends SnowflakeParser<VarDeclarationExpressi
         }
 
         stream.skip(1); //Skip "="
+
+        System.out.println("Got Integer");
 
         return new VarDeclarationExpression(stream.getLine(), superBlock, type, identifierToken.getValue());
     }

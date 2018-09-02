@@ -3,7 +3,7 @@ package snowflake.block;
 import snowflake.utils.TypeUtils;
 import snowflake.utils.Value;
 
-public class VariableBlock extends ReadableBlock {
+public class VariableBlock extends Block {
 
     private Block superBlock;
     private TypeUtils.ObjectType type;
@@ -38,6 +38,6 @@ public class VariableBlock extends ReadableBlock {
 
     @Override
     public void run() {
-        System.out.println("Variable -> " + name + ", returns " + type.getValue() + " with value " + value.toString());
+        System.out.println("Variable -> " + name + ", returns " + type.getValue() + " with value " + value.getValue().toString());
     }
 }

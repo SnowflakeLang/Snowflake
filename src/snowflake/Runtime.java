@@ -1,22 +1,19 @@
 package snowflake;
 
+import snowflake.block.AssignmentBlock;
 import snowflake.block.Block;
+import snowflake.block.NullBlock;
 import snowflake.block.ObjectBlock;
 import snowflake.exception.SnowflakeException;
 import snowflake.exception.SnowflakeRuntimeException;
 import snowflake.lexical.Lexer;
+import snowflake.lexical.Token;
 import snowflake.lexical.TokenStream;
-import snowflake.parsing.expression.FunctionExpression;
-import snowflake.parsing.expression.NullExpression;
-import snowflake.parsing.expression.VarDeclarationExpression;
-import snowflake.parsing.parser.FunctionParser;
-import snowflake.parsing.parser.NullParser;
-import snowflake.parsing.parser.ObjectParser;
+import snowflake.lexical.type.TokenType;
+import snowflake.parsing.expression.*;
+import snowflake.parsing.parser.*;
 import snowflake.parsing.SnowflakeParser;
 import snowflake.parsing.Expression;
-import snowflake.parsing.expression.ObjectExpression;
-import snowflake.parsing.parser.VarDeclarationParser;
-import snowflake.utils.StreamUtils;
 
 public class Runtime {
 
@@ -31,11 +28,16 @@ public class Runtime {
             ObjectBlock superBlock = null;
 
             Block current = null;
-            SnowflakeParser<?>[] parsers = new SnowflakeParser[]{
+            SnowflakeParser<?>[] parsers = new SnowflakeParser[] {
                     new ObjectParser(),
                     new FunctionParser(),
                     new VarDeclarationParser(),
                     new NullParser()
+            };
+
+            SnowflakeParser<?>[] subParsers = new SnowflakeParser[] {
+                    new NullParser(),
+                    new AssignmentParser()
             };
 
             int line = 1;
@@ -70,21 +72,48 @@ public class Runtime {
 
                         if (expression instanceof VarDeclarationExpression) {
                             if (superBlock != null) {
-                                TokenStream subStream = StreamUtils.getStream(stream, 4);
+                                int remainder = stream.size() - stream.getPosition();
 
-                                for (SnowflakeParser subParser : parsers) {
-                                    if (subParser.shouldEvaluate(subStream)) {
-                                        Expression sExpr = subParser.evaluate(superBlock, subStream);
+                                if (remainder == 1) {
+                                    TokenStream subStream = new TokenStream(stream.getLine(), stream.peek());
+                                    for (SnowflakeParser subParser : subParsers) {
+                                        if (subParser.shouldEvaluate(subStream)) {
+                                            Expression subExpr = subParser.evaluate(superBlock, subStream);
 
-                                        if (sExpr instanceof NullExpression) {
-                                            ((VarDeclarationExpression) expression).setValue(null);
+                                            if (subExpr instanceof NullExpression) {
+                                                NullBlock nBlock = (NullBlock) visitor.visit(subExpr);
+                                                ((VarDeclarationExpression) expression).setValue(nBlock.getValue());
+                                            } else if (subExpr instanceof AssignmentExpression) {
+                                                AssignmentBlock aBlock = (AssignmentBlock) visitor.visit(subExpr);
+                                                ((VarDeclarationExpression) expression).setValue(aBlock.getValue());
+                                            } else {
+                                                throw new SnowflakeRuntimeException("Line " + line + ": Expected " + ((VarDeclarationExpression) expression).getReturnType().getValue() + ", got " +
+                                                        stream.read(0).getTokenType().toString() + "!");
+                                            }
+
+                                            Block vBlock = visitor.visit(expression);
+
+                                            superBlock.add(vBlock);
+                                            current = superBlock;
                                         }
                                     }
+
+                                    //Check Value
+                                    //Throw exception if it's neither
+
+                                    if (stream.read().getTokenType() == TokenType.SEMI_COLON) {
+                                        throw new SnowflakeRuntimeException("Line " + line + ": Expected " + ((VarDeclarationExpression) expression).getReturnType().getValue() + ", got \";\"!");
+                                    }
+                                } else {
+                                    //It's a multi expression
+                                    //TODO: Make this work
                                 }
 
+                                /*
                                 Block vBlock = visitor.visit(expression);
 
                                 superBlock.add(vBlock);
+                                */
 
                                 //No need to add current because Variable Blocks are Read-Only
                             } else {

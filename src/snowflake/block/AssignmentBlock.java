@@ -2,14 +2,16 @@ package snowflake.block;
 
 import snowflake.utils.Value;
 
-public class NullBlock extends ReadableBlock {
+public class AssignmentBlock extends ReadableBlock {
 
     private Block superBlock;
+    private Value value;
 
-    public NullBlock(Block superBlock) {
+    public AssignmentBlock(Block superBlock, Value value) {
         super(superBlock);
 
         this.superBlock = superBlock;
+        this.value = value;
     }
 
     @Override
@@ -18,6 +20,7 @@ public class NullBlock extends ReadableBlock {
     }
 
     public Value getValue() {
-        return null;
+        return value;
     }
+
 }

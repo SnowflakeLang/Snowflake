@@ -1,5 +1,7 @@
 package snowflake.lexical.type;
 
+import snowflake.lexical.Token;
+
 public enum DataType implements AbstractType {
 
     //Data Types
@@ -15,5 +17,15 @@ public enum DataType implements AbstractType {
 
     public String getPattern() {
         return pattern;
+    }
+
+    public static boolean isType(Token token) {
+        for (DataType type : values()) {
+            if (type == token.getTokenType()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -27,4 +27,9 @@ public class Token {
     public int getLine() {
         return line;
     }
+
+    @Override
+    public String toString() {
+        return "Type=" + tokenType.toString() + ",Value=" + value;
+    }
 }

@@ -20,7 +20,7 @@ public class ObjectParser extends SnowflakeParser {
             int line = stream.getLine();
 
             return StreamUtils.compares(stream, new TokenStream(line,
-                    new Token(KeywordType.CLASS, "class ", line),
+                    new Token(KeywordType.CLASS, "class", line),
                     new Token(DataType.IDENTIFIER, stream.read(1).getValue(), line),
                     new Token(TokenType.OBRACE, "{", line)));
         } catch (SnowflakeException ex) {

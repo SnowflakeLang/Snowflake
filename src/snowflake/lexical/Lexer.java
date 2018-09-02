@@ -61,9 +61,9 @@ public class Lexer {
         for (KeywordType keywordType : KeywordType.values()) {
             if (str.startsWith(keywordType.getPattern())) {
                 if (str.substring(keywordType.getPattern().length()).isEmpty()) {
-                    values.put(new Token(keywordType, str.substring(0, keywordType.getPattern().length() + 1), line), "");
+                    values.put(new Token(keywordType, str.substring(0, keywordType.getPattern().length() + 1).trim(), line), "");
                 } else {
-                    values.put(new Token(keywordType, str.substring(0, keywordType.getPattern().length() + 1), line), str.substring(keywordType.getPattern().length()));
+                    values.put(new Token(keywordType, str.substring(0, keywordType.getPattern().length() + 1).trim(), line), str.substring(keywordType.getPattern().length()).trim());
                 }
 
                 return values;
@@ -85,9 +85,9 @@ public class Lexer {
         for (TokenType tokenType : TokenType.values()) {
             if (str.startsWith(tokenType.getPattern())) {
                 if (str.substring(1).isEmpty()) {
-                    values.put(new Token(tokenType, str.substring(0, 1), line), "");
+                    values.put(new Token(tokenType, str.substring(0, 1).trim(), line), "");
                 } else {
-                    values.put(new Token(tokenType, str.substring(0, 1), line), str.substring(1));
+                    values.put(new Token(tokenType, str.substring(0, 1).trim(), line), str.substring(1).trim());
                 }
 
                 return values;
