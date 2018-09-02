@@ -61,9 +61,9 @@ public class Lexer {
         for (KeywordType keywordType : KeywordType.values()) {
             if (str.startsWith(keywordType.getPattern())) {
                 if (str.substring(keywordType.getPattern().length()).isEmpty()) {
-                    values.put(new Token(keywordType, str.substring(0, keywordType.getPattern().length() + 1).trim(), line), "");
+                    values.put(new Token(keywordType, str.substring(0, keywordType.getPattern().length()).trim(), line), "");
                 } else {
-                    values.put(new Token(keywordType, str.substring(0, keywordType.getPattern().length() + 1).trim(), line), str.substring(keywordType.getPattern().length()).trim());
+                    values.put(new Token(keywordType, str.substring(0, keywordType.getPattern().length()).trim(), line), str.substring(keywordType.getPattern().length()).trim());
                 }
 
                 return values;

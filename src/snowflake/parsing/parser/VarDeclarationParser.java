@@ -32,8 +32,6 @@ public class VarDeclarationParser extends SnowflakeParser<VarDeclarationExpressi
                     new Token(KeywordType.INTEGER, "Integer", line),
                     new Token(DataType.IDENTIFIER, stream.read(1).getValue(), line),
                     new Token(TokenType.EQUAL, stream.read(2).getValue(), line)))) {
-                System.out.println("Found integer!");
-
                 return true;
             } else if (stream.matches(0, 2, new TokenStream(line,
                     new Token(KeywordType.STRING, "String", line),
@@ -59,8 +57,6 @@ public class VarDeclarationParser extends SnowflakeParser<VarDeclarationExpressi
         }
 
         stream.skip(1); //Skip "="
-
-        System.out.println("Got Integer");
 
         return new VarDeclarationExpression(stream.getLine(), superBlock, type, identifierToken.getValue());
     }

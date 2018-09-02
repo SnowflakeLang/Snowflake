@@ -7,7 +7,6 @@ import snowflake.block.ObjectBlock;
 import snowflake.exception.SnowflakeException;
 import snowflake.exception.SnowflakeRuntimeException;
 import snowflake.lexical.Lexer;
-import snowflake.lexical.Token;
 import snowflake.lexical.TokenStream;
 import snowflake.lexical.type.TokenType;
 import snowflake.parsing.expression.*;
@@ -23,7 +22,7 @@ public class Runtime {
         try {
             Lexer lexer = new Lexer();
             String code = "class Hello {" + "\n" +
-                    "Integer lol = 5" + "\n";
+                    "String lol = null" + "\n";
             Visitor visitor = new Visitor();
             ObjectBlock superBlock = null;
 
@@ -43,6 +42,14 @@ public class Runtime {
             int line = 1;
 
             for (String str : code.split("\n")) {
+                if (str.startsWith("//")) {
+                    System.out.println("Skipped line " + line);
+
+                    //If the line does start with a double forward slash, we want to SKIP the line BEFORE being pushed into a TokenStream (otherwise we'd get a complete line of Identifiers!)
+
+                    continue;
+                }
+
                 TokenStream stream = lexer.getStream(str, line);
 
                 //TODO: Fix this so that the parser looks for a PART of the stream and not the whole stream
@@ -90,11 +97,6 @@ public class Runtime {
                                                 throw new SnowflakeRuntimeException("Line " + line + ": Expected " + ((VarDeclarationExpression) expression).getReturnType().getValue() + ", got " +
                                                         stream.read(0).getTokenType().toString() + "!");
                                             }
-
-                                            Block vBlock = visitor.visit(expression);
-
-                                            superBlock.add(vBlock);
-                                            current = superBlock;
                                         }
                                     }
 
@@ -108,13 +110,9 @@ public class Runtime {
                                     //It's a multi expression
                                     //TODO: Make this work
                                 }
-
-                                /*
                                 Block vBlock = visitor.visit(expression);
 
                                 superBlock.add(vBlock);
-                                */
-
                                 //No need to add current because Variable Blocks are Read-Only
                             } else {
                                 throw new SnowflakeRuntimeException("Line " + line + ": Variable declaration outside of Object!");

@@ -38,6 +38,10 @@ public class VariableBlock extends Block {
 
     @Override
     public void run() {
-        System.out.println("Variable -> " + name + ", returns " + type.getValue() + " with value " + value.getValue().toString());
+        if (value == null) {
+            System.out.println("Variable -> " + name + ", returns " + type.getValue() + " with value null");
+        } else {
+            System.out.println("Variable -> " + name + ", returns " + type.getValue() + " with value " + value.getValue().toString());
+        }
     }
 }
