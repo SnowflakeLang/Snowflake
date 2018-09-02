@@ -1,5 +1,6 @@
 package snowflake.block;
 
+import snowflake.parsing.expression.VarDeclarationExpression;
 import snowflake.utils.TypeUtils;
 import snowflake.utils.Value;
 
@@ -34,6 +35,10 @@ public class VariableBlock extends Block {
 
     public Value getValue() {
         return value;
+    }
+
+    public void reDeclare(VarDeclarationExpression expression) {
+        this.value = expression.getValue();
     }
 
     @Override

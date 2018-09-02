@@ -43,8 +43,6 @@ public class Runtime {
 
             for (String str : code.split("\n")) {
                 if (str.startsWith("//")) {
-                    System.out.println("Skipped line " + line);
-
                     //If the line does start with a double forward slash, we want to SKIP the line BEFORE being pushed into a TokenStream (otherwise we'd get a complete line of Identifiers!)
 
                     continue;
@@ -52,9 +50,6 @@ public class Runtime {
 
                 TokenStream stream = lexer.getStream(str, line);
 
-                //TODO: Fix this so that the parser looks for a PART of the stream and not the whole stream
-                //TODO: This would be necessary for Variable Declaration (Use a UnassignedVarDeclaration first than use
-                //TODO: Equals to see if it is assigned using another expression (ValueExpression)
                 for (SnowflakeParser parser : parsers) {
                     if (parser.shouldEvaluate(stream)) {
                         Expression expression = parser.evaluate(superBlock, stream);
@@ -119,6 +114,19 @@ public class Runtime {
                             }
 
                         }
+
+                        if (expression instanceof UnassignedVarDeclarationExpression) {
+                            if (superBlock != null) {
+                                Block vBlock = visitor.visit(expression);
+
+                                superBlock.add(vBlock);
+                                //No need to add current because Variable Blocks are Read-Only
+                            } else {
+                                throw new SnowflakeRuntimeException("Line " + line + ": Variable declaration outside of Object!");
+                            }
+                        }
+
+                        //TODO: Add the reassignment operation!
                     }
                 }
 
