@@ -1,9 +1,6 @@
 package snowflake;
 
-import snowflake.block.AssignmentBlock;
-import snowflake.block.Block;
-import snowflake.block.NullBlock;
-import snowflake.block.ObjectBlock;
+import snowflake.block.*;
 import snowflake.exception.SnowflakeException;
 import snowflake.exception.SnowflakeRuntimeException;
 import snowflake.lexical.Lexer;
@@ -22,7 +19,7 @@ public class Runtime {
         try {
             Lexer lexer = new Lexer();
             String code = "class Hello {" + "\n" +
-                    "String lol = null" + "\n";
+                    "Integer lol" + "\n";
             Visitor visitor = new Visitor();
             ObjectBlock superBlock = null;
 
@@ -31,10 +28,9 @@ public class Runtime {
                     new ObjectParser(),
                     new FunctionParser(),
                     new VarDeclarationParser(),
-                    new NullParser()
             };
 
-            SnowflakeParser<?>[] subParsers = new SnowflakeParser[] {
+            SnowflakeParser<?>[] singleSubParsers = new SnowflakeParser[] {
                     new NullParser(),
                     new AssignmentParser()
             };
@@ -74,11 +70,10 @@ public class Runtime {
 
                         if (expression instanceof VarDeclarationExpression) {
                             if (superBlock != null) {
-                                int remainder = stream.size() - stream.getPosition();
-
-                                if (remainder == 1) {
+                                if (stream.size() == 4) {
                                     TokenStream subStream = new TokenStream(stream.getLine(), stream.peek());
-                                    for (SnowflakeParser subParser : subParsers) {
+
+                                    for (SnowflakeParser subParser : singleSubParsers) {
                                         if (subParser.shouldEvaluate(subStream)) {
                                             Expression subExpr = subParser.evaluate(superBlock, subStream);
 
@@ -86,6 +81,11 @@ public class Runtime {
                                                 NullBlock nBlock = (NullBlock) visitor.visit(subExpr);
                                                 ((VarDeclarationExpression) expression).setValue(nBlock.getValue());
                                             } else if (subExpr instanceof AssignmentExpression) {
+                                                if (((AssignmentExpression) subExpr).getValue().getType() != ((VarDeclarationExpression) expression).getReturnType()) {
+                                                    throw new SnowflakeRuntimeException("Line " + line + ": Expected " + ((VarDeclarationExpression) expression).getReturnType().getValue() + ", got " +
+                                                            ((AssignmentExpression) subExpr).getValue().getType().getValue() + "!");
+                                                }
+
                                                 AssignmentBlock aBlock = (AssignmentBlock) visitor.visit(subExpr);
                                                 ((VarDeclarationExpression) expression).setValue(aBlock.getValue());
                                             } else {
@@ -103,6 +103,7 @@ public class Runtime {
                                     }
                                 } else {
                                     //It's a multi expression
+                                    //It's a reference to a function
                                     //TODO: Make this work
                                 }
                                 Block vBlock = visitor.visit(expression);
@@ -112,21 +113,7 @@ public class Runtime {
                             } else {
                                 throw new SnowflakeRuntimeException("Line " + line + ": Variable declaration outside of Object!");
                             }
-
                         }
-
-                        if (expression instanceof UnassignedVarDeclarationExpression) {
-                            if (superBlock != null) {
-                                Block vBlock = visitor.visit(expression);
-
-                                superBlock.add(vBlock);
-                                //No need to add current because Variable Blocks are Read-Only
-                            } else {
-                                throw new SnowflakeRuntimeException("Line " + line + ": Variable declaration outside of Object!");
-                            }
-                        }
-
-                        //TODO: Add the reassignment operation!
                     }
                 }
 

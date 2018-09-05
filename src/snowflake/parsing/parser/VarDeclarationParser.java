@@ -10,7 +10,6 @@ import snowflake.lexical.type.KeywordType;
 import snowflake.lexical.type.TokenType;
 import snowflake.parsing.SnowflakeParser;
 import snowflake.parsing.expression.VarDeclarationExpression;
-import snowflake.utils.StreamUtils;
 import snowflake.utils.TypeUtils;
 
 public class VarDeclarationParser extends SnowflakeParser<VarDeclarationExpression> {
@@ -19,14 +18,6 @@ public class VarDeclarationParser extends SnowflakeParser<VarDeclarationExpressi
     public boolean shouldEvaluate(TokenStream stream) {
         try {
             int line = stream.getLine();
-
-            Token typeToken = stream.read(0);
-
-            if (typeToken.getValue().equals(KeywordType.VOID.getPattern())) {
-                throw new SnowflakeParserException("Line " + line + ": Can't assign \"Void\" to variable!");
-            }
-
-            stream.reset();
 
             if (stream.matches(0, 2, new TokenStream(line,
                     new Token(KeywordType.INTEGER, "Integer", line),
@@ -56,6 +47,6 @@ public class VarDeclarationParser extends SnowflakeParser<VarDeclarationExpressi
             throw new SnowflakeParserException("Line " + stream.getLine() + ": Can't assign \"Void\" to variable!");
         }
 
-        return new VarDeclarationExpression(stream.getLine(), superBlock, type, identifierToken.getValue());
+        return new VarDeclarationExpression(stream.getLine(), superBlock, type, identifierToken.getValue(), true);
     }
 }

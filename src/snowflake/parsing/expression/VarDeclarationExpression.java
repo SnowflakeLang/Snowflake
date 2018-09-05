@@ -15,13 +15,15 @@ public class VarDeclarationExpression extends Expression {
     private TypeUtils.ObjectType returnType;
     private String name;
     private Value value;
+    private boolean reassigned;
 
-    public VarDeclarationExpression(int line, Block superBlock, TypeUtils.ObjectType returnType, String name) {
+    public VarDeclarationExpression(int line, Block superBlock, TypeUtils.ObjectType returnType, String name, boolean reassigned) {
         this.line = line;
 
         this.superBlock = superBlock;
         this.returnType = returnType;
         this.name = name;
+        this.reassigned = reassigned;
     }
 
     public int getLine() {
@@ -46,6 +48,10 @@ public class VarDeclarationExpression extends Expression {
 
     public void setValue(Value value) {
         this.value = value;
+    }
+
+    public boolean isReassigned() {
+        return reassigned;
     }
 
     @Override
